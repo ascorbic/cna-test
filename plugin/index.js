@@ -1,5 +1,5 @@
 // @ts-check
-const { getHandler } = require("./gethandler");
+const { getHandler } = require("./getHandler");
 const fs = require("fs").promises;
 const { ensureDir } = require("fs-extra");
 const path = require("path");
