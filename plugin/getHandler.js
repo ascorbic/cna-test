@@ -3,6 +3,7 @@ const { Bridge } = require("@vercel/node/dist/bridge");
 // This path is specific to next@canary. In a live version we'd resolve various versions of next
 const NextServer = require("next/dist/server/next-server").default;
 function makeHandler() {
+  // We return a function and then call `toString()` on it to serialise it as the launcher function
   return (conf) => {
     const nextServer = new NextServer({
       conf,
@@ -22,7 +23,6 @@ function makeHandler() {
     const bridge = new Bridge(server);
     bridge.listen();
 
-    // This function isn't used like this, but is serialised with `toString()` and written as the launcher function
     return async (event, context) => {
       let result = await bridge.launcher(event, context);
       /** @type import("@netlify/functions").HandlerResponse */
@@ -42,6 +42,7 @@ const { Bridge } = require("./bridge");
 // Specific to this Next version
 const NextServer = require("next/dist/server/next-server").default;
 const { builder } = require("@netlify/functions");
+// We shouldn't hard-code ".next" as the path, and should extract it from the next config
 const { config }  = require(process.cwd() + "/.next/required-server-files.json")
 
 exports.handler = ${
