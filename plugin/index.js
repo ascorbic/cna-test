@@ -16,22 +16,19 @@ module.exports = {
   }) {
     const FUNCTION_DIR = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC;
     const bridgeFile = require.resolve("@vercel/node/dist/bridge");
-    console.log(PUBLISH_DIR);
-    await Promise.all(
-      ["___netlify-handler", "___netlify-odb-handler"].map(async (func) => {
-        const handlerSource = await getHandler(func.includes("odb"));
 
-        await ensureDir(path.join(FUNCTION_DIR, func));
-        await fs.writeFile(
-          path.join(FUNCTION_DIR, func, `${func}.js`),
-          handlerSource
-        );
-        await fs.copyFile(
-          bridgeFile,
-          path.join(FUNCTION_DIR, func, "bridge.js")
-        );
-      })
-    );
+    const writeHandler = async (func, odb) => {
+      const handlerSource = await getHandler(odb);
+      await ensureDir(path.join(FUNCTION_DIR, func));
+      await fs.writeFile(
+        path.join(FUNCTION_DIR, func, `${func}.js`),
+        handlerSource
+      );
+      await fs.copyFile(bridgeFile, path.join(FUNCTION_DIR, func, "bridge.js"));
+    };
+
+    await writeHandler("___netlify-handler", false);
+    await writeHandler("___netlify-odb-handler", true);
 
     await writeRedirects({
       publishDir: PUBLISH_DIR,
