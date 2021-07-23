@@ -1,6 +1,15 @@
 module.exports = {
   // Supported targets are "serverless" and "experimental-serverless-trace"
   target: "server",
+  async redirects() {
+    return [
+      {
+        source: "/post/:slug(\\d{1,})",
+        destination: "/shows/:slug", // Matched parameters can be used in the destination
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
