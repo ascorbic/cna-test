@@ -8,7 +8,6 @@ function makeHandler() {
     const nextServer = new NextServer({
       conf,
       dir: ".",
-      minimalMode: true,
       customServer: false,
     });
     const requestHandler = nextServer.getRequestHandler();

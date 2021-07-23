@@ -1,10 +1,14 @@
 // @ts-check
 const { getHandler } = require("./getHandler");
 const fs = require("fs").promises;
-const { ensureDir } = require("fs-extra");
+const { ensureDir, existsSync, remove } = require("fs-extra");
 const path = require("path");
 const DEFAULT_FUNCTIONS_SRC = "netlify/functions";
 const { writeRedirects } = require("./writeRedirects");
+
+const HANDLER_FUNCTION_NAME = "___netlify-handler";
+const ODB_FUNCTION_NAME = "___netlify-odb-handler";
+
 module.exports = {
   async onBuild({
     constants: {
@@ -17,6 +21,17 @@ module.exports = {
     const FUNCTION_DIR = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC;
     const bridgeFile = require.resolve("@vercel/node/dist/bridge");
 
+    if (INTERNAL_FUNCTIONS_SRC && existsSync(FUNCTIONS_SRC)) {
+      await Promise.all(
+        [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].map(async (name) => {
+          const dir = path.join(FUNCTIONS_SRC, name);
+          if (existsSync(dir)) {
+            await remove(dir);
+          }
+        })
+      );
+    }
+
     const writeHandler = async (func, odb) => {
       const handlerSource = await getHandler(odb);
       await ensureDir(path.join(FUNCTION_DIR, func));
@@ -27,8 +42,8 @@ module.exports = {
       await fs.copyFile(bridgeFile, path.join(FUNCTION_DIR, func, "bridge.js"));
     };
 
-    await writeHandler("___netlify-handler", false);
-    await writeHandler("___netlify-odb-handler", true);
+    await writeHandler(HANDLER_FUNCTION_NAME, false);
+    await writeHandler(ODB_FUNCTION_NAME, true);
 
     await writeRedirects({
       publishDir: PUBLISH_DIR,
