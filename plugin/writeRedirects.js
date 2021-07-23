@@ -71,12 +71,25 @@ exports.writeRedirects = async function ({
     redirects.push(...getNetlifyRoutes(route), ...getNetlifyRoutes(dataRoute));
   });
   redirects.sort();
+
+  // Use this when supported in ntl dev
+  //
+  // netlifyConfig.redirects.push(
+  //   ...redirects.map((redirect) => ({
+  //     from: redirect,
+  //     to: ODB_FUNCTION_PATH,
+  //     status: 200,
+  //   })),
+  //   { from: "_next/static/*", to: "/static/:splat 200", status: 200 },
+  //   { from: "/*", to: HANDLER_FUNCTION_PATH, status: 200 }
+  // );
+
   const odbRedirects = `${redirects
     .map((redir) => `${redir} ${ODB_FUNCTION_PATH} 200`)
     .join("\n")}
-/_next/static/* /static/:splat 200
-/* ${HANDLER_FUNCTION_PATH} 200 
-    `;
+  /_next/static/* /static/:splat 200
+  /* ${HANDLER_FUNCTION_PATH} 200
+      `;
 
   await writeFile(path.join(nextRoot, publishDir, "_redirects"), odbRedirects);
 };

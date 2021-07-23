@@ -10,12 +10,29 @@ const HANDLER_FUNCTION_NAME = "___netlify-handler";
 const ODB_FUNCTION_NAME = "___netlify-odb-handler";
 
 module.exports = {
+  async onPreBuild({ netlifyConfig }) {
+    [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
+      if (!netlifyConfig.functions[functionName]) {
+        netlifyConfig.functions[functionName] = {};
+      }
+      if (!netlifyConfig.functions[functionName].included_files) {
+        netlifyConfig.functions[functionName].included_files = [];
+      }
+      netlifyConfig.functions[functionName].included_files.push(
+        ".next/server/**",
+        ".next/*.json",
+        ".next/BUILD_ID"
+      );
+    });
+
+    console.log(netlifyConfig);
+  },
+
   async onBuild({
     constants: {
       PUBLISH_DIR,
       FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC,
       INTERNAL_FUNCTIONS_SRC,
-      ...rest
     },
   }) {
     const FUNCTION_DIR = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC;

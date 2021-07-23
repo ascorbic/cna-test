@@ -1,11 +1,7 @@
 [build]
   framework="#custom"
   command = "npm run build"
-  functions = "netlify/functions"
   publish = ".next"
-
-[functions]
-  included_files = [".next/server/**", ".next/*.json", ".next/BUILD_ID"]
 
 [dev]
   framework="#static"
