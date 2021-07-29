@@ -38,17 +38,6 @@ module.exports = {
     const FUNCTION_DIR = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC;
     const bridgeFile = require.resolve("@vercel/node/dist/bridge");
 
-    if (INTERNAL_FUNCTIONS_SRC && existsSync(FUNCTIONS_SRC)) {
-      await Promise.all(
-        [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].map(async (name) => {
-          const dir = path.join(FUNCTIONS_SRC, name);
-          if (existsSync(dir)) {
-            await remove(dir);
-          }
-        })
-      );
-    }
-
     const writeHandler = async (func, odb) => {
       const handlerSource = await getHandler(odb);
       await ensureDir(path.join(FUNCTION_DIR, func));
