@@ -3,9 +3,6 @@
   command = "npm run build"
   publish = ".next"
 
-[dev]
-  framework="#static"
-
 
 [[plugins]]
 package = "./plugin"

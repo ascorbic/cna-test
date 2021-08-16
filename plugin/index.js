@@ -29,6 +29,7 @@ module.exports = {
   },
 
   async onBuild({
+    netlifyConfig,
     constants: {
       PUBLISH_DIR,
       FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC,
@@ -54,6 +55,7 @@ module.exports = {
     await writeRedirects({
       publishDir: PUBLISH_DIR,
       nextRoot: path.dirname(PUBLISH_DIR),
+      netlifyConfig,
     });
   },
 };

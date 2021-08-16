@@ -57,6 +57,7 @@ const getNetlifyRoutes = (nextRoute) => {
 exports.writeRedirects = async function ({
   publishDir = "out",
   nextRoot = process.cwd(),
+  netlifyConfig,
 }) {
   const { dynamicRoutes } = await readJSON(
     path.join(nextRoot, ".next", "prerender-manifest.json")
@@ -72,24 +73,23 @@ exports.writeRedirects = async function ({
   });
   redirects.sort();
 
-  // Use this when supported in ntl dev
-  //
-  // netlifyConfig.redirects.push(
-  //   ...redirects.map((redirect) => ({
-  //     from: redirect,
-  //     to: ODB_FUNCTION_PATH,
-  //     status: 200,
-  //   })),
-  //   { from: "_next/static/*", to: "/static/:splat 200", status: 200 },
-  //   { from: "/*", to: HANDLER_FUNCTION_PATH, status: 200 }
-  // );
-
-  const odbRedirects = `${redirects
-    .map((redir) => `${redir} ${ODB_FUNCTION_PATH} 200`)
-    .join("\n")}
-  /_next/static/* /static/:splat 200
-  /* ${HANDLER_FUNCTION_PATH} 200
-      `;
-
-  await writeFile(path.join(nextRoot, publishDir, "_redirects"), odbRedirects);
+  // This is only used in prod, so dev uses `next dev` directly
+  netlifyConfig.redirects.push(
+    ...redirects.map((redirect) => ({
+      from: redirect,
+      to: ODB_FUNCTION_PATH,
+      status: 200,
+    })),
+    { from: "_next/static/*", to: "/static/:splat 200", status: 200 },
+    { from: "/*", to: HANDLER_FUNCTION_PATH, status: 200 }
+  );
+  // If we want to use the Netlify functions handler we'd need to do it like this,
+  // as `ntl dev` doesn't support mutating redirects at the moment. Maybe this should be an env var, to make testing easier?
+  // const odbRedirects = `${redirects
+  //   .map((redir) => `${redir} ${ODB_FUNCTION_PATH} 200`)
+  //   .join("\n")}
+  // /_next/static/* /static/:splat 200
+  // /* ${HANDLER_FUNCTION_PATH} 200
+  //     `;
+  // await writeFile(path.join(nextRoot, publishDir, "_redirects"), odbRedirects);
 };
