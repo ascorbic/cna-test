@@ -80,7 +80,7 @@ exports.writeRedirects = async function ({
       to: ODB_FUNCTION_PATH,
       status: 200,
     })),
-    { from: "_next/static/*", to: "/static/:splat 200", status: 200 },
+    { from: "/_next/static/*", to: "/static/:splat 200", status: 200 },
     { from: "/*", to: HANDLER_FUNCTION_PATH, status: 200 }
   );
   // If we want to use the Netlify functions handler we'd need to do it like this,
